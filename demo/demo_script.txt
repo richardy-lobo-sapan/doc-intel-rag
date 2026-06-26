@@ -1,0 +1,60 @@
+DOCUMENT INTELLIGENCE RAG — DEMO RECORDING SCRIPT
+====================================================
+
+STEP 1 — Project structure
+---------------------------
+(Show file tree: app/, data/corpus/, tests/, README.md, TECHNICAL.md, Dockerfile, docker-compose.yml)
+
+
+STEP 2 — Start the stack
+--------------------------
+docker compose up -d
+
+(wait for "Uvicorn running on http://0.0.0.0:8000" — already built, this just starts containers)
+
+
+STEP 3 — Ingest the sample corpus (10 docs: PDF, DOCX, PPTX, XLSX, CSV)
+--------------------------------------------------------------------------
+docker compose exec api python scripts/ingest_corpus.py
+
+(show: "10 files ingested, 39 chunks indexed")
+
+
+STEP 4 — Query 1: PDF source
+-------------------------------
+(Invoke-RestMethod -Uri "http://localhost:8000/query" -Method Post -ContentType "application/json" -Body '{"question": "What is the procedure for a quality audit on Production Line B?"}') | ConvertTo-Json -Depth 5
+
+EXPECT: answer cites sop_quality_audit_production_line.pdf, page 1
+
+
+STEP 5 — Query 2: DOCX source
+--------------------------------
+(Invoke-RestMethod -Uri "http://localhost:8000/query" -Method Post -ContentType "application/json" -Body '{"question": "What approval is required for purchases above 50 million rupiah?"}') | ConvertTo-Json -Depth 5
+
+EXPECT: answer cites regulation_procurement_approval_policy.docx, section "Approval Thresholds"
+
+
+STEP 6 — Query 3: XLSX source
+--------------------------------
+(Invoke-RestMethod -Uri "http://localhost:8000/query" -Method Post -ContentType "application/json" -Body '{"question": "Which calibration tools are overdue?"}') | ConvertTo-Json -Depth 5
+
+EXPECT: answer cites log_quality_audit_records_2026.xlsx, "Calibration Status" sheet
+
+
+STEP 7 — API docs (optional, nice to show)
+---------------------------------------------
+Open browser: http://localhost:8000/docs
+(briefly show the Swagger UI — /ingest, /query, /documents endpoints)
+
+
+STEP 8 — Stop the stack (after recording)
+--------------------------------------------
+docker compose down
+
+
+====================================================
+NOTES WHILE RECORDING:
+- Keep terminal font large enough to read after GIF conversion
+- Pause briefly on each JSON response so it's readable
+- No need to narrate out loud — text on screen is enough
+====================================================
